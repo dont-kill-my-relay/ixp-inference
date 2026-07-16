@@ -41,7 +41,7 @@ def extend_path(path: str, ix_state: dict, worst_case: bool) -> str:
     return result + ases[-1]
 
 
-def extend_circuit(aspath_file: str, ix_asns_file: str, ixs_file: str, worst_case: bool = False, output_file: str = "ixpath.txt") -> None:
+def extend_circuit(aspath_file: str, ix_asns_file: str, ixs_file: str, output_file: str, worst_case: bool = False) -> None:
     """
     Extend each circuit made of ASes with inferred IXP in between
     @param aspath_file: File with the AS paths, as show in the README
@@ -49,10 +49,10 @@ def extend_circuit(aspath_file: str, ix_asns_file: str, ixs_file: str, worst_cas
     @param ixs_file: ixs*.jsonl from CAIDA: https://publicdata.caida.org/datasets/ixps/
     @param output_file: Filename for the result
     """
-    print('worst case' if worst_case else 'regular case')
+    print('worst case' if worst_case else 'regular case', flush=True)
     ix_state = create_data_structure(ix_asns_file, ixs_file)
 
-    print("extending aspath file")
+    print("extending aspath file", flush=True)
     with open(aspath_file, 'r') as aspath_file, open(output_file, "w") as output_file:
         _ = next(aspath_file)
         for path in aspath_file:
@@ -72,7 +72,7 @@ def create_data_structure(ix_asns_file: str, ixs_file: str) -> dict[tuple, list]
     @param ixs_file: ixs*.jsonl from CAIDA: https://publicdata.caida.org/datasets/ixps/
     @return: mapping from two ASes to the list of IXP or IXP organisations that they can use to connect
     """
-    print("building map_ix_to_org")
+    print("building map_ix_to_org", flush=True)
     map_ix_to_org = dict()
     with open(ixs_file, 'r') as f:
         for line in f.readlines():
@@ -80,13 +80,13 @@ def create_data_structure(ix_asns_file: str, ixs_file: str) -> dict[tuple, list]
                 continue
             data = json.loads(line)
             if 'ix_id' not in data:
-                print(f'no ix_id in {data}')
+                print(f'no ix_id in {data}', flush=True)
             if 'org_id' not in data:
                 map_ix_to_org[data['ix_id']] = f"IX{data['ix_id']}"
             else:
                 map_ix_to_org[data['ix_id']] = f"ORG{data['org_id']}"
 
-    print("building ix_to_set_asn")
+    print("building ix_to_set_asn", flush=True)
     ix_to_set_asn = dict()
     with open(ix_asns_file, 'r') as f:
         for line in f.readlines():
@@ -95,7 +95,7 @@ def create_data_structure(ix_asns_file: str, ixs_file: str) -> dict[tuple, list]
             data = json.loads(line)
             ix_id = data['ix_id']
             if ix_id not in map_ix_to_org:
-                print(f"{ix_id} not found in map_ix_to_org. Adding it")
+                print(f"{ix_id} not found in map_ix_to_org. Adding it", flush=True)
                 map_ix_to_org[ix_id] = f"IX{ix_id}"
 
             if ix_id not in ix_to_set_asn:
@@ -103,7 +103,7 @@ def create_data_structure(ix_asns_file: str, ixs_file: str) -> dict[tuple, list]
             else:
                 ix_to_set_asn[ix_id].update({data['asn']})
 
-    print("building asn_pair_to_ix")
+    print("building asn_pair_to_ix", flush=True)
     asn_pair_to_ix = dict()
     for ix, asn_set in ix_to_set_asn.items():
         nb_asn_at_ix = len(asn_set)
@@ -115,7 +115,7 @@ def create_data_structure(ix_asns_file: str, ixs_file: str) -> dict[tuple, list]
             else:
                 asn_pair_to_ix[pair] = [data]
 
-    print("pruning data")
+    print("pruning data", flush=True)
     for pair, ix_list in asn_pair_to_ix.items():
         asn_pair_to_ix[pair] = list({map_ix_to_org[ix['ix_id']] for ix in ix_list})
     return asn_pair_to_ix

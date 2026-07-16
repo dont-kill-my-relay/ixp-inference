@@ -45,4 +45,4 @@ path between client and guard, guard and client, exit and destination, and desti
 Both `ix_asns_file` and `ixs_file` should be selected from the same date, which should match the data for which the AS 
 inference was done.
 
-`output_file` sets the name for the result file and is optional.
+`output_file` sets the name for the result file.

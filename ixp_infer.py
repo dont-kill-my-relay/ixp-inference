@@ -7,7 +7,7 @@ import json
 import fire
 from itertools import pairwise, combinations
 import random
-
+random.seed(42)
 
 def ix_lookup(as_pair: tuple[str, str], ix_state: dict, worst_case: bool = False) -> str | None:
     """
